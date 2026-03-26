@@ -1,0 +1,10 @@
+# Default / catch-all
+* @liush2yuxjtu
+
+# Claude Code configuration - requires review
+.claude/** @liush2yuxjtu
+.github/** @liush2yuxjtu
+
+# Agent governance documents
+AGENTS.md @liush2yuxjtu
+CLAUDE.md @liush2yuxjtu

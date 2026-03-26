@@ -1,0 +1,84 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/pre-tool/bash-trainer-guard.sh",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/pre-tool/file-guard.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/post-tool/lint-format.sh",
+            "timeout": 30,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "FileChanged": [
+      {
+        "matcher": "AGENTS.md|CLAUDE.md|.claude/rules/.+\\.md",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/file-changed/rules-size-check.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/post-compact/save-summary.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-end/write-handoff.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "Evaluate whether all tasks appear genuinely complete. Check: 1) Are there uncommitted changes that should be committed? 2) Are there any obvious gaps in the implementation? 3) Does the work feel complete or rushed? Respond with {\"ok\": true} if complete, {\"ok\": false, \"reason\": \"...\"} if not. $ARGUMENTS",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
