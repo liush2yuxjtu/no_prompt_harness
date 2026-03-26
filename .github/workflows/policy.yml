@@ -1,0 +1,91 @@
+name: policy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce hard policy
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          MAX_SOURCE_LINES=400
+          MAX_RULE_DOC_LINES=200
+          ALLOWED_MAIN_SOURCE="main.py"
+
+          git fetch --no-tags --depth=1 origin "${{ github.event.pull_request.base.ref }}"
+
+          mapfile -t changed_files < <(
+            git diff --name-only "origin/${{ github.event.pull_request.base.ref }}"...HEAD | sed '/^$/d'
+          )
+
+          echo "Changed files:"
+          printf '  %s\n' "${changed_files[@]}"
+
+          protected_hits=()
+
+          is_python_file() {
+            local path="$1"
+            [[ "$path" == *.py ]]
+          }
+
+          is_allowed_main_source() {
+            local path="$1"
+            [[ "$path" == "$ALLOWED_MAIN_SOURCE" ]]
+          }
+
+          is_rule_doc() {
+            local path="$1"
+            [[ "$path" == "AGENTS.md" || "$path" == "CLAUDE.md" ]]
+          }
+
+          for path in "${changed_files[@]}"; do
+            if is_python_file "$path" && ! is_allowed_main_source "$path"; then
+              echo "Only listed Python scripts may be edited. Allowed scripts: ${ALLOWED_MAIN_SOURCE}. Blocked target: ${path}."
+              exit 1
+            fi
+
+            if [[ "$path" == .claude/* || "$path" == .github/* || "$path" == "AGENTS.md" || "$path" == "CLAUDE.md" ]]; then
+              protected_hits+=("$path")
+            fi
+          done
+
+          if [[ -f "$ALLOWED_MAIN_SOURCE" ]]; then
+            lines=$(wc -l < "$ALLOWED_MAIN_SOURCE")
+            if (( lines > MAX_SOURCE_LINES )); then
+              echo "$ALLOWED_MAIN_SOURCE has ${lines} lines, limit is ${MAX_SOURCE_LINES}."
+              exit 1
+            fi
+          fi
+
+          for path in "${changed_files[@]}"; do
+            if ! is_rule_doc "$path"; then
+              continue
+            fi
+            if [[ ! -f "$path" ]]; then
+              continue
+            fi
+            lines=$(wc -l < "$path")
+            if (( lines > MAX_RULE_DOC_LINES )); then
+              echo "$path has ${lines} lines, limit is ${MAX_RULE_DOC_LINES}."
+              exit 1
+            fi
+          done
+
+          echo "Protected surface touched:"
+          if (( ${#protected_hits[@]} == 0 )); then
+            echo "  none"
+          else
+            printf '  %s\n' "${protected_hits[@]}"
+          fi
+
+          echo "policy checks passed"

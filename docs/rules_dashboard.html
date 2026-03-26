@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Rules Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #475569;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #06b6d4;
+            --local-hook: #10b981;
+            --github-policy: #8b5cf6;
+            --security-rule: #ef4444;
+            --compliance-rule: #f59e0b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .category-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .category-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .category-badge:hover {
+            transform: translateY(-2px);
+        }
+
+        .category-badge.active {
+            border-color: var(--text-primary);
+        }
+
+        .badge-local { background-color: rgba(16, 185, 129, 0.2); color: var(--local-hook); }
+        .badge-github { background-color: rgba(139, 92, 246, 0.2); color: var(--github-policy); }
+        .badge-security { background-color: rgba(239, 68, 68, 0.2); color: var(--security-rule); }
+        .badge-compliance { background-color: rgba(245, 158, 11, 0.2); color: var(--compliance-rule); }
+
+        .category-section {
+            margin-bottom: 3rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .category-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .icon-local { background-color: rgba(16, 185, 129, 0.2); color: var(--local-hook); }
+        .icon-github { background-color: rgba(139, 92, 246, 0.2); color: var(--github-policy); }
+        .icon-security { background-color: rgba(239, 68, 68, 0.2); color: var(--security-rule); }
+        .icon-compliance { background-color: rgba(245, 158, 11, 0.2); color: var(--compliance-rule); }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .rules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .rule-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rule-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .rule-card.local::before { background-color: var(--local-hook); }
+        .rule-card.github::before { background-color: var(--github-policy); }
+        .rule-card.security::before { background-color: var(--security-rule); }
+        .rule-card.compliance::before { background-color: var(--compliance-rule); }
+
+        .rule-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-primary);
+        }
+
+        .rule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .rule-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .rule-id {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .rule-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-draft {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .status-disabled {
+            background-color: rgba(148, 163, 184, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .rule-description {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+        }
+
+        .rule-section {
+            margin-bottom: 1rem;
+        }
+
+        .rule-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .code-block {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            overflow-x: auto;
+        }
+
+        .thresholds-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .threshold-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background-color: var(--bg-primary);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .threshold-name {
+            color: var(--text-secondary);
+        }
+
+        .threshold-value {
+            font-family: 'SF Mono', Monaco, monospace;
+            color: var(--accent-primary);
+            font-weight: 500;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .tag {
+            padding: 0.25rem 0.5rem;
+            background-color: var(--bg-card);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.75rem 1rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .search-bar::placeholder {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Policy Rules Documentation</h1>
+            <p class="subtitle">Complete reference for all policy rules and validation logic</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <input type="text" class="search-bar" placeholder="Search rules by name, ID, or description...">
+
+        <nav class="category-nav">
+            <span class="category-badge badge-local active">Local Hooks</span>
+            <span class="category-badge badge-github">GitHub Policy</span>
+            <span class="category-badge badge-security">Security Rules</span>
+            <span class="category-badge badge-compliance">Compliance</span>
+        </nav>
+
+        <!-- Local Hooks Category -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon icon-local">L</div>
+                <h2 class="category-title">Local Hooks</h2>
+            </div>
+
+            <div class="rules-grid">
+                <!-- Rule Card 1 -->
+                <article class="rule-card local">
+                    <div class="rule-header">
+                        <div>
+                            <h3 class="rule-name">Pre-commit Validation</h3>
+                            <span class="rule-id">RULE-001</span>
+                        </div>
+                        <span class="rule-status status-active">Active</span>
+                    </div>
+
+                    <p class="rule-description">
+                        Validates code changes before allowing commits to ensure quality standards are met.
+                    </p>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Input</div>
+                        <div class="code-block">git diff --staged</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Output</div>
+                        <div class="code-block">{ "valid": boolean, "errors": string[] }</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Thresholds & Limits</div>
+                        <div class="thresholds-list">
+                            <div class="threshold-item">
+                                <span class="threshold-name">Max file size</span>
+                                <span class="threshold-value">1 MB</span>
+                            </div>
+                            <div class="threshold-item">
+                                <span class="threshold-name">Max line length</span>
+                                <span class="threshold-value">120 chars</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tags">
+                        <span class="tag">pre-commit</span>
+                        <span class="tag">validation</span>
+                        <span class="tag">quality</span>
+                    </div>
+                </article>
+
+                <!-- Rule Card 2 -->
+                <article class="rule-card local">
+                    <div class="rule-header">
+                        <div>
+                            <h3 class="rule-name">Secret Detection</h3>
+                            <span class="rule-id">RULE-002</span>
+                        </div>
+                        <span class="rule-status status-active">Active</span>
+                    </div>
+
+                    <p class="rule-description">
+                        Scans staged files for potential secrets, API keys, and sensitive information.
+                    </p>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Input</div>
+                        <div class="code-block">staged file content</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Output</div>
+                        <div class="code-block">{ "secrets_found": number, "locations": string[] }</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Thresholds & Limits</div>
+                        <div class="thresholds-list">
+                            <div class="threshold-item">
+                                <span class="threshold-name">Allowed secrets</span>
+                                <span class="threshold-value">0</span>
+                            </div>
+                            <div class="threshold-item">
+                                <span class="threshold-name">Scan depth</span>
+                                <span class="threshold-value">full history</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tags">
+                        <span class="tag">security</span>
+                        <span class="tag">secrets</span>
+                        <span class="tag">scanning</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- GitHub Policy Category -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon icon-github">G</div>
+                <h2 class="category-title">GitHub Policy</h2>
+            </div>
+
+            <div class="rules-grid">
+                <!-- Rule Card 3 -->
+                <article class="rule-card github">
+                    <div class="rule-header">
+                        <div>
+                            <h3 class="rule-name">Branch Protection</h3>
+                            <span class="rule-id">RULE-003</span>
+                        </div>
+                        <span class="rule-status status-active">Active</span>
+                    </div>
+
+                    <p class="rule-description">
+                        Enforces branch protection rules for main branches requiring reviews and status checks.
+                    </p>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Input</div>
+                        <div class="code-block">branch name, PR metadata</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Output</div>
+                        <div class="code-block">{ "protected": boolean, "violations": string[] }</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Thresholds & Limits</div>
+                        <div class="thresholds-list">
+                            <div class="threshold-item">
+                                <span class="threshold-name">Required reviews</span>
+                                <span class="threshold-value">2</span>
+                            </div>
+                            <div class="threshold-item">
+                                <span class="threshold-name">Min review coverage</span>
+                                <span class="threshold-value">75%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tags">
+                        <span class="tag">branch-protection</span>
+                        <span class="tag">reviews</span>
+                        <span class="tag">main-branch</span>
+                    </div>
+                </article>
+
+                <!-- Rule Card 4 -->
+                <article class="rule-card github">
+                    <div class="rule-header">
+                        <div>
+                            <h3 class="rule-name">PR Size Limit</h3>
+                            <span class="rule-id">RULE-004</span>
+                        </div>
+                        <span class="rule-status status-draft">Draft</span>
+                    </div>
+
+                    <p class="rule-description">
+                        Limits the size of pull requests to ensure effective code review and reduce risk.
+                    </p>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Input</div>
+                        <div class="code-block">PR diff stats</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Output</div>
+                        <div class="code-block">{ "within_limits": boolean, "metrics": object }</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Thresholds & Limits</div>
+                        <div class="thresholds-list">
+                            <div class="threshold-item">
+                                <span class="threshold-name">Max lines changed</span>
+                                <span class="threshold-value">500</span>
+                            </div>
+                            <div class="threshold-item">
+                                <span class="threshold-name">Max files changed</span>
+                                <span class="threshold-value">20</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tags">
+                        <span class="tag">pull-request</span>
+                        <span class="tag">size-limit</span>
+                        <span class="tag">review-quality</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Security Rules Category -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon icon-security">S</div>
+                <h2 class="category-title">Security Rules</h2>
+            </div>
+
+            <div class="rules-grid">
+                <!-- Rule Card 5 -->
+                <article class="rule-card security">
+                    <div class="rule-header">
+                        <div>
+                            <h3 class="rule-name">Dependency Vulnerability Scan</h3>
+                            <span class="rule-id">RULE-005</span>
+                        </div>
+                        <span class="rule-status status-active">Active</span>
+                    </div>
+
+                    <p class="rule-description">
+                        Scans project dependencies for known security vulnerabilities using CVE databases.
+                    </p>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Input</div>
+                        <div class="code-block">package.json, package-lock.json</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Output</div>
+                        <div class="code-block">{ "vulnerabilities": object[], "severity_counts": object }</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Thresholds & Limits</div>
+                        <div class="thresholds-list">
+                            <div class="threshold-item">
+                                <span class="threshold-name">Max critical</span>
+                                <span class="threshold-value">0</span>
+                            </div>
+                            <div class="threshold-item">
+                                <span class="threshold-name">Max high</span>
+                                <span class="threshold-value">0</span>
+                            </div>
+                            <div class="threshold-item">
+                                <span class="threshold-name">Max medium</span>
+                                <span class="threshold-value">5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tags">
+                        <span class="tag">dependencies</span>
+                        <span class="tag">vulnerabilities</span>
+                        <span class="tag">cve</span>
+                    </div>
+                </article>
+
+                <!-- Rule Card 6 -->
+                <article class="rule-card security">
+                    <div class="rule-header">
+                        <div>
+                            <h3 class="rule-name">Code Injection Detection</h3>
+                            <span class="rule-id">RULE-006</span>
+                        </div>
+                        <span class="rule-status status-disabled">Disabled</span>
+                    </div>
+
+                    <p class="rule-description">
+                        Detects potential code injection vulnerabilities in source code patterns.
+                    </p>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Input</div>
+                        <div class="code-block">source code files</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Output</div>
+                        <div class="code-block">{ "issues": object[], "confidence": string }</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Thresholds & Limits</div>
+                        <div class="thresholds-list">
+                            <div class="threshold-item">
+                                <span class="threshold-name">Min confidence</span>
+                                <span class="threshold-value">80%</span>
+                            </div>
+                            <div class="threshold-item">
+                                <span class="threshold-name">False positive rate</span>
+                                <span class="threshold-value">&lt; 5%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tags">
+                        <span class="tag">injection</span>
+                        <span class="tag">static-analysis</span>
+                        <span class="tag">sast</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Compliance Category -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon icon-compliance">C</div>
+                <h2 class="category-title">Compliance</h2>
+            </div>
+
+            <div class="rules-grid">
+                <!-- Rule Card 7 -->
+                <article class="rule-card compliance">
+                    <div class="rule-header">
+                        <div>
+                            <h3 class="rule-name">License Compliance</h3>
+                            <span class="rule-id">RULE-007</span>
+                        </div>
+                        <span class="rule-status status-active">Active</span>
+                    </div>
+
+                    <p class="rule-description">
+                        Validates that all dependencies use approved open source licenses.
+                    </p>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Input</div>
+                        <div class="code-block">dependency tree with license info</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Output</div>
+                        <div class="code-block">{ "compliant": boolean, "violations": object[] }</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Thresholds & Limits</div>
+                        <div class="thresholds-list">
+                            <div class="threshold-item">
+                                <span class="threshold-name">Allowed licenses</span>
+                                <span class="threshold-value">15</span>
+                            </div>
+                            <div class="threshold-item">
+                                <span class="threshold-name">Blocked licenses</span>
+                                <span class="threshold-value">GPL-3.0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tags">
+                        <span class="tag">license</span>
+                        <span class="tag">oss</span>
+                        <span class="tag">legal</span>
+                    </div>
+                </article>
+
+                <!-- Rule Card 8 -->
+                <article class="rule-card compliance">
+                    <div class="rule-header">
+                        <div>
+                            <h3 class="rule-name">Data Privacy Check</h3>
+                            <span class="rule-id">RULE-008</span>
+                        </div>
+                        <span class="rule-status status-draft">Draft</span>
+                    </div>
+
+                    <p class="rule-description">
+                        Ensures no PII or sensitive data is exposed in logs or error messages.
+                    </p>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Input</div>
+                        <div class="code-block">log files, error traces</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Expected Output</div>
+                        <div class="code-block">{ "exposures": object[], "risk_level": string }</div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="section-label">Thresholds & Limits</div>
+                        <div class="thresholds-list">
+                            <div class="threshold-item">
+                                <span class="threshold-name">Max PII exposures</span>
+                                <span class="threshold-value">0</span>
+                            </div>
+                            <div class="threshold-item">
+                                <span class="threshold-name">Scan coverage</span>
+                                <span class="threshold-value">100%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tags">
+                        <span class="tag">privacy</span>
+                        <span class="tag">pii</span>
+                        <span class="tag">gdpr</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Policy Rules Documentation &copy; 2026</p>
+    </footer>
+</body>
+</html>
