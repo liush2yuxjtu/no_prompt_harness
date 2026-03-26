@@ -1,0 +1,4 @@
+- IMPORTANT: only answer in chinese 
+- IMPORTANT: make atomic commits everytime when you make file edits 
+- IMPORTANT: refuse and stop immediately if not in a worktree. 
+- IMPORTANT: write in plans in TODO.md 
